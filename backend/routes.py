@@ -3,6 +3,7 @@ Routes for the shorty backend.
 """
 
 import mongoengine
+from mongoengine.errors import DoesNotExist, MultipleObjectsReturned
 from backend.models import ShortUrl
 from fastapi import HTTPException
 from fastapi.routing import APIRouter
@@ -13,6 +14,7 @@ from pydantic import BaseModel
 from base64 import urlsafe_b64encode
 from hashlib import sha1
 
+import datetime
 router = APIRouter()
 
 pseudodb = {
@@ -41,8 +43,12 @@ def put_shorten(payload: URLSchema):
     # TODO user and pass from container as scratchpad. remove
     # TODO ensure unique url
     mongoengine.connect("shorty", username="root", password="example", authentication_source="admin")
-    url = ShortUrl(url=payload.url, short_url=encoded)
-    url.save()
+    try:
+        ShortUrl.objects.get(url=payload.url)
+    except MultipleObjectsReturned:
+        pass
+    except DoesNotExist:
+        ShortUrl(url=payload.url, short_url=encoded).save()
 
 
     return {"short_url": encoded}
@@ -50,8 +56,15 @@ def put_shorten(payload: URLSchema):
 
 @router.get("/{short_url:str}")
 def get_redirected(short_url: str):
-    url = pseudodb.get(short_url)
-    if url is None:
+    mongoengine.connect("shorty", username="root", password="example", authentication_source="admin")
+    try:
+        db_obj: ShortUrl = ShortUrl.objects.get(short_url=short_url)
+    except MultipleObjectsReturned:
+        db_obj: ShortUrl = ShortUrl.objects(short_url=short_url)[0]
+    except DoesNotExist:
         raise HTTPException(status_code=404, detail="URL not found.")
     
-    return RedirectResponse(url=url)
+    db_obj.views.append(datetime.datetime.utcnow())
+    db_obj.save()
+    
+    return RedirectResponse(url=db_obj.url)
