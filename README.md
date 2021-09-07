@@ -26,6 +26,7 @@ Built with FastAPI, MongoDB, VueJS + Tailwind css
 - [ ] monitoring --> grafana, kibana
 - [ ] nginx ingress proxy thingie
 - [x] shorten url endpoint
+- [ ] shorten url ensure http/https
 - [ ] visitation stats
   - [x] create
   - [ ] view
