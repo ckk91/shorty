@@ -9,10 +9,7 @@ Built with FastAPI, MongoDB, VueJS + Tailwind css
 
 # TODO
 - [ ] decisions.md
-- [ ] mypy
-- [ ] bandit
-- [ ] black
-- [ ] isort
+- [ ] mypy, bandit, black, isort
 - [ ] 
 - [ ] contributions.md
 - [ ] editor config
@@ -30,3 +27,4 @@ Built with FastAPI, MongoDB, VueJS + Tailwind css
 - [ ] visitation stats
   - [x] create
   - [ ] view
+- [ ] git pipeline integration
